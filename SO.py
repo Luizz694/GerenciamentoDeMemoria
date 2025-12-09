@@ -1,4 +1,3 @@
-# ============== CONFIGURAÇÃO INICIAL ==============
 import copy
 
 NUM_MOLDURAS = 8
