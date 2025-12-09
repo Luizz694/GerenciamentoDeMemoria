@@ -1,13 +1,8 @@
-# ============== CONFIGURAÇÃO INICIAL ==============
 import copy
 
 NUM_MOLDURAS = 8
 NUM_PAGINAS = 16
-
-# Memória física tem 8 molduras (0 a 7)
 memoria_fisica = [None] * NUM_MOLDURAS  # None = vazio, senão guarda o ID da página
-
-# Tabela de páginas: 16 páginas virtuais (0 a 15)
 # Cada página tem: [presente, moldura, referenciada, modificada, tempo_carga, ultimo_acesso]
 tabela_paginas = []
 for i in range(NUM_PAGINAS):
