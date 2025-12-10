@@ -240,6 +240,103 @@ void executar_SEGUNDA_CHANCE(int acessos[][2], int n){
 }
 /*--FIM SEGUNDA CHANCE--*/
 
+/*-- INICIO CLOCK --*/
+
+int vitima_clock() {
+    while (1) {
+        int frame = ponteiro_clock;
+        int pg = frames[frame].pagina;
+
+        if (tabela_paginas[pg].referenciada == 0) {
+            ponteiro_clock = (ponteiro_clock + 1) % NUM_FRAMES;
+            return frame;
+        } else {
+            tabela_paginas[pg].referenciada = 0;
+            ponteiro_clock = (ponteiro_clock + 1) % NUM_FRAMES;
+        }
+    }
+}
+
+void executar_CLOCK(int acessos[][2], int n){
+    inicializar();
+
+    int hits = 0;
+    int misses = 0;
+
+    for (int i = 0; i < n; i++) {
+        int op = acessos[i][0];
+        int pg = acessos[i][1];
+
+        if (tabela_paginas[pg].presente) {
+            hits++;
+            tabela_paginas[pg].referenciada = 1;
+            if (op) tabela_paginas[pg].modificada = 1;
+            tabela_paginas[pg].ultimo_uso = tempo_global++;
+        } else {
+            misses++;
+
+            int frame = vitima_clock();
+            carregar_pagina(frame, pg);
+
+            if (op) tabela_paginas[pg].modificada = 1;
+        }
+    }
+
+    printf("CLOCK -> Hits: %d | Misses: %d\n", hits, misses);
+}
+
+/*-- FIM CLOCK --*/
+
+/*-- Inicio MRU -- */
+
+int vitima_mru() {
+    int indice = 0;
+    int maior = -1;
+
+    for (int i = 0; i < NUM_FRAMES; i++) {
+        int pg = frames[i].pagina;
+        if (pg == -1) continue;
+
+        int tempo = tabela_paginas[pg].ultimo_uso;
+        if (tempo > maior) {
+            maior = tempo;
+            indice = i;
+        }
+    }
+
+    return indice;
+}
+
+void executar_MRU(int acessos[][2], int n){
+    inicializar();
+
+    int hits = 0;
+    int misses = 0;
+
+    for (int i = 0; i < n; i++) {
+        int op = acessos[i][0];
+        int pg = acessos[i][1];
+
+        if (tabela_paginas[pg].presente) {
+            hits++;
+            tabela_paginas[pg].referenciada = 1;
+            if (op) tabela_paginas[pg].modificada = 1;
+            tabela_paginas[pg].ultimo_uso = tempo_global++;
+        } else {
+            misses++;
+
+            int frame = vitima_mru();
+            carregar_pagina(frame, pg);
+
+            if (op) tabela_paginas[pg].modificada = 1;
+        }
+    }
+
+    printf("MRU -> Hits: %d | Misses: %d\n", hits, misses);
+}
+
+/*-Fim MRU--*/
+
 
 int main(){
     int acessos[][2] = {
@@ -253,5 +350,6 @@ int main(){
     executar_FIFO(acessos, n);
     executar_NUR(acessos, n);
     executar_SEGUNDA_CHANCE(acessos, n);
-
+    executar_CLOCK(acessos, n);
+    executar_MRU(acessos, n);
 }
